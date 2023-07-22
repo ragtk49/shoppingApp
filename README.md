@@ -1,4 +1,4 @@
-# SHOPEE : Shopping App#
+# SHOPEE : Shopping App
 
 ## Description:
 The Shopping App is a web application that allows users to browse and purchase various products. Users can add items to their shopping cart, proceed to checkout, and make payments securely using the integrated Stripe payment system. The app also provides features like product filtering by color and size, user registration, login, and logout functionalities.

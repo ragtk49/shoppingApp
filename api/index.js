@@ -29,7 +29,7 @@ app.use('/api/cart', cartRoute);
 app.use('/api/orders', orderRoute);
 app.use('/api/checkout', stripeRoute);
 
-
+const PORT = process.env.PORT || 5000;
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`)
 })
