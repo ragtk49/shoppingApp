@@ -11,6 +11,7 @@ import { publicRequest} from '../requestMethods'
 import { useEffect, useState } from 'react'
 import { addProduct } from '../redux/cartRedux'
 import { useDispatch } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 const Container = styled.div`
 
@@ -118,6 +119,7 @@ export const Product = () => {
     const [color, setColor] = useState("");
     const [size, setSize] = useState("");
     const dispatch = useDispatch();
+    const user = useSelector((state) => state.user.currentUser);
 
     useEffect(() => {
         const getProduct = async () => {
@@ -142,6 +144,10 @@ export const Product = () => {
 
     const handleClick = () => {
         //update cart
+        if(!user){
+            alert("Please login to continue");
+            return;
+        }
         dispatch(addProduct({...product, quantity, color, size}))
     }
 
@@ -181,7 +187,7 @@ export const Product = () => {
                         <Amount>{quantity}</Amount>
                         <Add onClick={() => handleQuantity('inc')}/>
                     </AmountContainer>
-                    <Button onClick={handleClick}>ADD TO CART</Button>
+                    <Button onClick={handleClick} >ADD TO CART</Button>
                 </AddContainer>
             </InfoContainer>
         </Wrapper>

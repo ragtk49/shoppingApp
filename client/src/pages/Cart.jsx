@@ -4,7 +4,7 @@ import { Announcement } from '../components/Announcement'
 import { Footer } from '../components/Footer'
 import { Add, Remove } from '@material-ui/icons'
 import { mobile } from '../responsive'
-import React, {useState, useEffect} from 'react'
+import React from 'react'
 import { useSelector } from 'react-redux'
 import StripeCheckout from 'react-stripe-checkout'
 import { userRequest } from '../requestMethods'
@@ -174,49 +174,36 @@ const Button = styled.button`
 export const Cart = () => {
 
     const cart = useSelector(state => state.cart)
-    const [stripeToken, setStripeToken] = useState(null);
     const navigate = useNavigate();
 
-    
 
-    const onToken = (token) => {
-        setStripeToken(token);
+    const handleToken = async (token) => {
+        try {
+
+            const response = await userRequest.post('/checkout/payment', 
+            {
+                tokenId: token.id,
+                amount: cart.total * 100,
+            });
+
+        if (response.data.status === 'success') {
+            // Handle successful payment here, e.g., show a success message or redirect to a success page
+            console.log('Payment success:', response.data);
+            navigate('/success', {
+                state: {
+                    stripeData: response.data,
+                    cart: cart
+                }
+            });
+        } else {
+            // Handle payment error, e.g., show an error message
+            console.error('Payment failed:', response.data.message);
+        }
+        } catch (error) {
+        // Handle error with the API request or other issues
+        console.error('Payment error:', error.message);
+        }
     };
-
-//   useEffect(() => {
-//     const makeRequest = async () => {
-//       try {
-//         const res = await userRequest.post("/checkout/payment", {
-//           tokenId: stripeToken,
-//           amount: cart.total* 100,
-//         });
-//         navigate.push("/success", {
-//           stripeData: res.data,
-//           products: cart, });
-//       } catch {}
-//     };
-//     stripeToken && makeRequest();
-//   }, [stripeToken, cart.total, navigate]);
-
-const handleToken = async (token) => {
-    try {
-      const response = await userRequest.post('/checkout/payment', {
-        tokenId: token.id,
-        amount: cart.total * 100,
-      });
-
-      if (response.data.status === 'success') {
-        // Handle successful payment here, e.g., show a success message or redirect to a success page
-        console.log('Payment success:', response.data);
-      } else {
-        // Handle payment error, e.g., show an error message
-        console.error('Payment failed:', response.data.message);
-      }
-    } catch (error) {
-      // Handle error with the API request or other issues
-      console.error('Payment error:', error.message);
-    }
-  };
 
   return (
     <Container>

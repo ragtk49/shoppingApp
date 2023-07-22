@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { Search, ShoppingCartOutlined } from '@material-ui/icons'
 import {Badge} from '@material-ui/core';
 import { mobile } from '../responsive';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import {logout} from '../redux/apiCalls';
+import {clearCart, saveCartToLocalStorage, clearCartFromLocalStorage, setCartFromLocalStorage} from '../redux/cartRedux';
+import { useNavigate } from 'react-router-dom';
 
 const Container =  styled.div`
     height: 60px;
@@ -71,6 +74,29 @@ const MenuItem = styled.div`
 
 export const Navbar = () => {
     const quantity = useSelector(state => state.cart.quantity)
+    const user = useSelector((state) => state.user.currentUser);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout(dispatch);
+        dispatch(clearCart());
+        dispatch(clearCartFromLocalStorage());
+        navigate("/");
+      }
+    // Save cart data to localStorage when the cart data changes  
+    useEffect(() => {
+        dispatch(saveCartToLocalStorage());
+    }, [dispatch, quantity]);
+
+    // Load cart data from localStorage when the component mounts (user logs back in)
+    useEffect(() => {
+        const cartData = JSON.parse(localStorage.getItem("cart"));
+        if (cartData) {
+          dispatch(setCartFromLocalStorage(cartData));
+        }
+      }, [dispatch]);
+
   return (
     <Container>
         <Wrapper>
@@ -87,8 +113,19 @@ export const Navbar = () => {
                 </Link>
             </Center>
             <Right>
-                <MenuItem>REGISTER</MenuItem>
-                <MenuItem>SIGN IN</MenuItem>
+                {user ? (
+                    // Show the "LOGOUT" button if the user is authenticated
+                         <MenuItem onClick={handleLogout}>LOGOUT</MenuItem>
+                    ) : (
+                        <>
+                            <Link to="/register" style={{textDecoration: "none"}}>
+                            <MenuItem>REGISTER</MenuItem>
+                            </Link>
+                            <Link to="/login" style={{textDecoration: "none"}}>
+                            <MenuItem>SIGN IN</MenuItem>
+                            </Link>
+                        </>
+                    )}
                 <Link to="/cart">
                 <MenuItem>
                     <Badge badgeContent={quantity} color="primary">
